@@ -1,96 +1,108 @@
-//Deepers Into Objects
-//Objects consist of key value pairs
-//They consist of properties(variables) and function(methods)
-let student = {
-  name: "Kimani",
-  age: 55,
-  citizen: true,
-  sayHi() {
-    console.log("Hello Javascript");
-  },
-};
+//The JavaScript Event Loop
+//This is a fundamental part of Javascript that is responsible for
+//handling asynchronous operations and makes sure that JS remains
+//non-blocking and responsive
 
-//accessing properties and functions in objects
-console.log(student.name); //Kimani
-student.sayHi(); //Hello Javascript
-//modifying properties
-student.age = 29;
-console.log(student.age); //29
+//1. Call Stack
+//The event loop begins here. The call stack is a data structure that keeps
+//track of function calls in you code. When a function is calles it is added
+//to the top of the stack. When it returns it is removed from the stack
 
-//Asynchronous Js
-//Javascript is single-threaded hence it can only perform a single task
-//At a time. But at time we have operations that take time e.g Getting data
-//from a server or reading a file
-//Javascript skips these lines of code and comes back later when the
-//operations are done. This makes JS aynchronous e.g
+//2. Callback Queue
+//This queue deals with asynchronous operations i.e callbacks and promises
+//When an async task is complete, it's callback is placed here
+
+//3. Event Loop
+//The event loop continously checks the call stack and the callback queue
+//If the call stack is empty it takes the first function from the queue and
+//pushes it to the stack for execution. This process repeats ensuring async tasks
+//do not block the main thread of execution
+
+//4. Microtasks & Macrotasks Queues
+// Promises have a higher priority than callbacks in the callback queue. After the call
+//stack is empty all pending promise callbacks(microtasks) are executed before other
+//callbacks (Macrotasks)
+
+//Example
+console.log("Start");
+
+// Simulating a time-consuming operation with a callback
 setTimeout(() => {
-  console.log("This will come second");
+  console.log("Timeout callback executed");
 }, 0);
+// Adding a promise to the microtask queue that resolves immediately
+Promise.resolve().then(() => {
+  console.log("Promise microtask executed");
+});
 
-console.log("This will come first");
+console.log("End");
+//Start
+//End
+//Promise microtask executed
+//Timeout callback executed
 
-//There are several ways to handle these operations
-//1. Callback functions
-//Callback functions are a common way to handle asynchronous operations in JavaScript.
-// A callback is a function passed as an argument to another function to be executed 
-//later when the first function has completed its task.
-function fetchData(callback) {
-  setTimeout(() => {
-    //Assuming this is a call to the server
-    const data = "This is a big chunk of data from a server";
-    callback(data);
-  }, 2000);
-}
+//Here the first console.log("start") is placed in the call stack and executed
+//Then the setTimeout callback(The arrow function inside) is placed in the macrotask
+//queue. Then the promise .then callback is added into the microtask queue.
+//Finally the final console.log("end") is added to the call stack and executed
+//Then the promise callback followed by the setTimeout callback
 
-function handleData(data) {
-  console.log(data);
-}
+//P.S ALL OTHER METHODS AND CALLBACKS IN THIS FILE WILL BE EXECUTED IN THE SAME WAY
+//HENCE YOU WILL SEE OTHER CONSOLE.LOGS LOGGING BEFORE THE CALLBACK AND PROMISE IN THIS EXAMPLE
 
-fetchData(handleData);
+//The Document Object Model (DOM)
+//The DOM represents the document structure of an HTML web page and provides
+//a way for programs to interact with the page's content.
+//In JavaScript, you can manipulate and access HTML elements through the DOM.
 
-//2. Promises
-//Promises provide a more structured way to handle asynchronous operations and avoid "callback hell." 
-//A Promise represents a future value or event that may not be available yet but will be at some point.
-function getUsers() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const data = "These are some users from the db";
-      resolve(data);
-    }, 2000);
-  });
-}
+//1. Selecting Elements (DOM Traversal)
+const grandparent = document.getElementById("grandparent");
+//returns a HTML collection of all elements with that class name
+//The collection is not an array. Can be converted with Array.from()
+const parents = document.getElementsByClassName("parent");
+//query selector
+const grandparent_with_querySelector = document.querySelector("#grandparent");
+//query selector all - selects all elements with the selector you provide
+//It returns a loopable array
+const children = document.querySelectorAll(".child");
+//selecting children of an element
+//Returns a HTML collection
+const grandparent_children = grandparent.children;
+//There are more selectors like selecting siblings, selecting parents etc.
+//Read more of this on https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction
 
-getUsers()
-  .then((data) => {
-    console.log(data);
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+//2.DOM Manipulation
+//creating elements
+const div = document.createElement("div");
+//Appending elements to the DOM
+document.body.append(div);
+div.innerText = "This div was created with Javascript";
+//Modifying text content
+//a.
+div.innerHTML = "<b>This is bold text</b>";
+//b.
+const p = document.createElement("p");
+p.innerText = "This is a paragraph";
+div.append(p);
+//Removing elements
+p.remove();
+//Modifying element attributes
+const span = document.createElement("span");
+span.id = "my-id";
+span.innerText = "This is my span";
+console.log(span); //<span id="my-id">This is my span</span>
+//Modifying classes
+const container = document.createElement("div");
+container.classList.add("container");
+console.log(container); //<div class="container"></div>
+container.classList.remove("container");
+console.log(container); //<div class></div>
+//Modifying styles
+container.innerText = "This is my container";
+container.style.backgroundColor = "red";
+document.body.append(container);
+// Note that styles separated with hyphens e.g background-color
+//are changed to camel casing i.e backgroungColor
 
-//3. Async/await
-//The async and await keywords provide a cleaner syntax for working with Promises, 
-//making asynchronous code look more like synchronous code.
-async function getBlogs() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const data = "These are some blogs from the database";
-      resolve(data);
-    }, 2000);
-  });
-}
-
-const data = await getBlogs();
-console.log(data); //These are some blogs from the database
-
-//Error Handling
-//Try catch block
-//A try catch block is used to safely catch and errors that arise from asynchronous operations
-//It can also be used to throw custom errors
-try {
-  const data = await getBlogs();
-  //To thro a custom error use the throw("You error") function
-  console.log(data);
-} catch (error) {
-  console.log(error);
-}
+//More information on DOM manipulation can be found on
+//https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Manipulating_documents
